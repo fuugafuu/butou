@@ -3,14 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Bird Model</title>
-  <link rel="stylesheet" type="text/css" href="styles/style.css"> <!-- CSSのリンク -->
+  <title>FBX Model Example</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
 </head>
 <body>
-  <canvas id="webglCanvas"></canvas>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.min.js"></script>
-  <script src="script.js"></script> <!-- JavaScriptのリンク -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/FBXLoader.js"></script>
+  <script>
+    // シーンの設定
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // 照明の追加
+    const light = new THREE.AmbientLight(0x404040); // 便利なアンビエントライト
+    scene.add(light);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+    directionalLight.position.set(1, 1, 1).normalize();
+    scene.add(directionalLight);
+
+    // FBXLoaderの準備
+    const loader = new THREE.FBXLoader();
+
+    // FBXファイルを読み込む
+    loader.load('path/to/your/model.fbx', function(fbx) {
+      scene.add(fbx); // 読み込んだFBXをシーンに追加
+
+      // アニメーションを適用する（もしアニメーションが含まれていれば）
+      const mixer = new THREE.AnimationMixer(fbx);
+      fbx.animations.forEach(clip => {
+        mixer.clipAction(clip).play();
+      });
+
+      // アニメーションループ
+      function animate() {
+        requestAnimationFrame(animate);
+        mixer.update(0.01); // アニメーションの進行
+        renderer.render(scene, camera);
+      }
+      animate();
+    }, undefined, function(error) {
+      console.error('An error happened:', error);
+    });
+
+    // カメラの設定
+    camera.position.z = 5;
+
+    // レンダリングループ
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+    animate();
+
+  </script>
 </body>
 </html>
