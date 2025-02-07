@@ -19,6 +19,7 @@ const bird = {
 };
 
 let bounceCount = 0;
+let isOnGround = false;
 
 // バウンド回数の表示を更新
 function updateBounceCount() {
@@ -44,7 +45,12 @@ function updateBird() {
     if (bird.y + bird.radius > canvas.height) {
         bird.y = canvas.height - bird.radius;
         bird.dy = -bird.dy * bird.bounceFactor;
-        updateBounceCount(); // バウンド回数を更新
+        if (!isOnGround) {
+            updateBounceCount(); // バウンド回数を更新
+            isOnGround = true; // 地面に着いた
+        }
+    } else {
+        isOnGround = false; // 地面から離れた
     }
 
     // 画面上部に当たった時に反発
@@ -95,6 +101,29 @@ document.getElementById('modeFree').addEventListener('click', () => {
     const ruleText = document.getElementById('ruleText');
     ruleText.style.display = 'block';
     ruleText.innerText = "フリーモードは、時間制限なく自由にバウンドさせることができるモードです。のんびり遊んで、バウンドの練習ができます！";
+});
+
+// Googleサインイン機能
+function onSignIn(googleUser) {
+    const profile = googleUser.getBasicProfile();
+    alert("Hello, " + profile.getName());
+}
+
+// Microsoftサインイン機能
+const msalConfig = {
+    auth: {
+        clientId: "YOUR_MICROSOFT_APP_CLIENT_ID", // MicrosoftアプリのクライアントID
+        authority: "https://login.microsoftonline.com/common"
+    }
+};
+const msalInstance = new msal.PublicClientApplication(msalConfig);
+
+document.getElementById('msLoginBtn').addEventListener('click', () => {
+    msalInstance.loginPopup().then((loginResponse) => {
+        alert("Microsoft Login Success! Welcome " + loginResponse.account.username);
+    }).catch((error) => {
+        console.error(error);
+    });
 });
 
 // ルール説明ボタン
