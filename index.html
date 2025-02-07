@@ -1,19 +1,16 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>文鳥育成ゲーム</title>
-  <link rel="stylesheet" href="style.css">
+  <title>3D Bird Model</title>
+  <link rel="stylesheet" type="text/css" href="styles/style.css"> <!-- CSSのリンク -->
 </head>
 <body>
-  <div id="game-container">
-    <canvas id="gameCanvas"></canvas>
-  </div>
+  <canvas id="webglCanvas"></canvas>
 
-  <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/GLTFLoader.js"></script>
-  <script src="script.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/loaders/GLTFLoader.min.js"></script>
+  <script src="script.js"></script> <!-- JavaScriptのリンク -->
 </body>
 </html>
