@@ -1,84 +1,58 @@
+// ゲームの主要要素設定
 const canvas = document.getElementById('gameCanvas');
-const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ canvas });
 
-if (!gl) {
-  alert('WebGLがサポートされていません。');
-}
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// カメラ位置
+camera.position.z = 5;
 
-// シンプルな3Dシーン設定
-const vertexShaderSource = `
-  attribute vec4 position;
-  void main() {
-    gl_Position = position;
+// OrbitControlsでカメラ操作
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+// 3Dモデルの読み込み（GLTF形式）
+const loader = new THREE.GLTFLoader();
+loader.load('bird_model.gltf', function(gltf) {
+  const bird = gltf.scene;
+  bird.scale.set(0.5, 0.5, 0.5);
+  scene.add(bird);
+});
+
+// 簡単なライト
+const light = new THREE.AmbientLight(0x404040); // 環境光
+scene.add(light);
+
+// レイキャスターを使用してクリックイベントを処理
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+canvas.addEventListener('click', (event) => {
+  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.update();
+  const intersects = raycaster.intersectObjects(scene.children);
+  if (intersects.length > 0) {
+    // 撫でるアクション（空腹度など）
+    console.log("文鳥を撫でました！");
+    // 例えば、空腹度を減らす処理
   }
-`;
+});
 
-const fragmentShaderSource = `
-  precision mediump float;
-  void main() {
-    gl_FragColor = vec4(0.2, 0.6, 0.8, 1.0);
-  }
-`;
-
-function createShader(gl, type, source) {
-  const shader = gl.createShader(type);
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.error(gl.getShaderInfoLog(shader));
-    gl.deleteShader(shader);
-    return null;
-  }
-  return shader;
+// レンダリング関数
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update(); // OrbitControlsの更新
+  renderer.render(scene, camera);
 }
 
-const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+animate();
 
-const program = gl.createProgram();
-gl.attachShader(program, vertexShader);
-gl.attachShader(program, fragmentShader);
-gl.linkProgram(program);
-
-if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-  console.error(gl.getProgramInfoLog(program));
-}
-
-gl.useProgram(program);
-
-const positionAttributeLocation = gl.getAttribLocation(program, 'position');
-const positionBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-const positions = [
-  -0.5, -0.5,
-   0.5, -0.5,
-  -0.5,  0.5,
-   0.5,  0.5,
-];
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-gl.enableVertexAttribArray(positionAttributeLocation);
-gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
-
-function render() {
-  gl.clearColor(0.1, 0.1, 0.1, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT);
-
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-  requestAnimationFrame(render);
-}
-render();
-
-// 音楽再生制御
-const backgroundMusic = document.getElementById('background-music');
-backgroundMusic.play();
-
+// ウィンドウリサイズに対応
 window.addEventListener('resize', () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
 });
