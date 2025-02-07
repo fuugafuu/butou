@@ -8,16 +8,20 @@ body {
     align-items: center;
     height: 100vh;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .game-container {
     text-align: center;
+    width: 100%;
 }
 
 canvas {
     border: 2px solid black;
     background-color: #fff;
     margin-top: 20px;
+    max-width: 100%;
+    height: auto;
 }
 
 #bounceCountDisplay {
@@ -47,7 +51,20 @@ canvas {
     margin-bottom: 20px;
 }
 
-/* Google and Microsoft login buttons */
+#startButtonContainer {
+    margin-top: 20px;
+}
+
+#startButton {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
 .g-signin2 {
     margin-top: 20px;
 }
