@@ -20,6 +20,7 @@ const bird = {
 
 let bounceCount = 0;
 let isOnGround = false;
+let gameStarted = false;
 
 // バウンド回数の表示を更新
 function updateBounceCount() {
@@ -71,7 +72,9 @@ function updateBird() {
 
 // タップで文鳥が上昇
 window.addEventListener('click', () => {
-    bird.dy = bird.lift;
+    if (gameStarted) {
+        bird.dy = bird.lift;
+    }
 });
 
 // ゲームループ
@@ -79,29 +82,50 @@ function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawBird();
     updateBird();
-    requestAnimationFrame(gameLoop);
+    if (gameStarted) {
+        requestAnimationFrame(gameLoop);
+    }
 }
-
-gameLoop();
 
 // モード選択ボタンの処理
 document.getElementById('modeRanking').addEventListener('click', () => {
-    const ruleText = document.getElementById('ruleText');
-    ruleText.style.display = 'block';
-    ruleText.innerText = "ランキングモードは、1分間に何回バウンドさせることができるかを競うモードです。最高得点を目指して、集中してプレイしましょう！";
+    showStartButton("ランキングモードは、1分間に何回バウンドさせるかを競うモードです。");
 });
 
 document.getElementById('modeChallenge').addEventListener('click', () => {
-    const ruleText = document.getElementById('ruleText');
-    ruleText.style.display = 'block';
-    ruleText.innerText = "チャレンジモードは、10秒以内に何回バウンドさせることができるかを競うモードです。限られた時間でどれだけバウンドできるか挑戦しましょう！";
+    showStartButton("チャレンジモードは、10秒以内に何回バウンドさせるかを競うモードです。");
 });
 
 document.getElementById('modeFree').addEventListener('click', () => {
-    const ruleText = document.getElementById('ruleText');
-    ruleText.style.display = 'block';
-    ruleText.innerText = "フリーモードは、時間制限なく自由にバウンドさせることができるモードです。のんびり遊んで、バウンドの練習ができます！";
+    showStartButton("フリーモードは、時間制限なく自由にバウンドさせることができるモードです。");
 });
+
+// スタートボタンの表示
+function showStartButton(ruleText) {
+    const ruleTextElement = document.getElementById('ruleText');
+    ruleTextElement.style.display = 'block';
+    ruleTextElement.innerText = ruleText;
+    document.getElementById('startButtonContainer').style.display = 'block';
+    gameStarted = false; // ゲーム開始前
+}
+
+// スタートボタン押下時
+document.getElementById('startButton').addEventListener('click', () => {
+    startGame();
+    document.getElementById('startButtonContainer').style.display = 'none'; // スタートボタン非表示
+    gameLoop(); // ゲーム開始
+});
+
+// ゲーム開始時の初期化
+function startGame() {
+    bird.x = canvas.width / 2;
+    bird.y = canvas.height / 2;
+    bird.dy = 0;
+    bird.dx = 5;
+    bounceCount = 0; // バウンド数リセット
+    updateBounceCount(); // 表示更新
+    gameStarted = true;
+}
 
 // Googleサインイン機能
 function onSignIn(googleUser) {
@@ -118,17 +142,4 @@ const msalConfig = {
 };
 const msalInstance = new msal.PublicClientApplication(msalConfig);
 
-document.getElementById('msLoginBtn').addEventListener('click', () => {
-    msalInstance.loginPopup().then((loginResponse) => {
-        alert("Microsoft Login Success! Welcome " + loginResponse.account.username);
-    }).catch((error) => {
-        console.error(error);
-    });
-});
-
-// ルール説明ボタン
-document.getElementById('ruleButton').addEventListener('click', () => {
-    const ruleText = document.getElementById('ruleText');
-    ruleText.style.display = 'block';
-    ruleText.innerText = "モード選択画面でルール説明文を変更してください。";
-});
+document.getElementById('
