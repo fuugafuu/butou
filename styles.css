@@ -7,6 +7,7 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
+    flex-direction: column;
 }
 
 .game-container {
@@ -16,6 +17,7 @@ body {
 canvas {
     border: 2px solid black;
     background-color: #fff;
+    margin-top: 20px;
 }
 
 #bounceCountDisplay {
@@ -43,4 +45,19 @@ canvas {
 
 .mode-selection {
     margin-bottom: 20px;
+}
+
+/* Google and Microsoft login buttons */
+.g-signin2 {
+    margin-top: 20px;
+}
+
+#msLoginBtn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #0078d4;
+    color: white;
+    border: none;
+    border-radius: 5px;
 }
