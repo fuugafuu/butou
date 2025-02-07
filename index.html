@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>バウンドゲーム</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Google Login API -->
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    <!-- Microsoft Login API -->
+    <script src="https://alcdn.msauth.net/browser/2.12.1/js/msal.js"></script>
 </head>
 <body>
     <div class="game-container">
@@ -17,6 +21,12 @@
         <p id="bounceCountDisplay">バウンド回数: 0</p>
         <button id="ruleButton">ルール説明</button>
         <p id="ruleText"></p>
+
+        <!-- Google Login Button -->
+        <div class="g-signin2" data-onsuccess="onSignIn"></div>
+
+        <!-- Microsoft Login Button -->
+        <button id="msLoginBtn">Microsoftでログイン</button>
     </div>
 
     <script src="script.js"></script>
