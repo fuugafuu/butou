@@ -1,56 +1,105 @@
-// 基本的なThree.jsのセットアップ
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('webglCanvas') });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+// ゲーム設定と共通部分
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-// GLTFLoaderを使用してモデルを読み込む
-const loader = new THREE.GLTFLoader();
-loader.load('models/bird_model.gltf', function(gltf) {
-  scene.add(gltf.scene);
-  gltf.scene.scale.set(0.5, 0.5, 0.5); // モデルのスケールを調整
-  gltf.scene.position.set(0, -1, 0); // モデルの位置を調整
-}, undefined, function(error) {
-  console.error('An error happened loading the model:', error);
-});
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-// カメラの位置
-camera.position.z = 5;
+const bird = {
+    x: canvas.width / 2,
+    y: canvas.height / 2,
+    radius: 20,
+    dx: 5,
+    dy: 0,
+    gravity: 0.1,
+    lift: -2,
+    bounceFactor: 0.7,
+    color: 'black',
+    sound: new Audio('https://www.soundjay.com/button/beep-07.wav')
+};
 
-// レンダリングループ
-function animate() {
-  requestAnimationFrame(animate);
+let bounceCount = 0;
 
-  // 必要に応じてモデルを回転させる
-  scene.traverse(function(object) {
-    if (object.isMesh) {
-      object.rotation.y += 0.01;
-    }
-  });
-
-  renderer.render(scene, camera);
+// バウンド回数の表示を更新
+function updateBounceCount() {
+    bounceCount++;
+    document.getElementById('bounceCountDisplay').innerText = `バウンド回数: ${bounceCount}`;
 }
 
-// イベントリスナー: マウスクリックでRaycasterを更新
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
+// 文鳥を描く関数
+function drawBird() {
+    ctx.beginPath();
+    ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+    ctx.fillStyle = bird.color;
+    ctx.fill();
+    ctx.closePath();
+}
 
-window.addEventListener('click', (event) => {
-  // マウス座標を正規化
-  mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-  mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+// 文鳥を更新する関数
+function updateBird() {
+    bird.dy += bird.gravity;
+    bird.y += bird.dy;
 
-  // Raycasterを更新してクリック位置をチェック
-  raycaster.update(mouse, camera);
-}, false);
+    // 画面下部に当たった時に反発
+    if (bird.y + bird.radius > canvas.height) {
+        bird.y = canvas.height - bird.radius;
+        bird.dy = -bird.dy * bird.bounceFactor;
+        updateBounceCount(); // バウンド回数を更新
+    }
 
-// ウィンドウサイズが変更された場合の対応
-window.addEventListener('resize', () => {
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
+    // 画面上部に当たった時に反発
+    if (bird.y - bird.radius < 0) {
+        bird.y = bird.radius;
+        bird.dy = -bird.dy * bird.bounceFactor;
+    }
+
+    // 画面左右に当たった時に反発
+    if (bird.x + bird.radius > canvas.width || bird.x - bird.radius < 0) {
+        bird.dx = -bird.dx;
+        bird.sound.play();
+        updateBounceCount(); // バウンド回数を更新
+    }
+
+    bird.x += bird.dx;
+}
+
+// タップで文鳥が上昇
+window.addEventListener('click', () => {
+    bird.dy = bird.lift;
 });
 
-// アニメーション開始
-animate();
+// ゲームループ
+function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawBird();
+    updateBird();
+    requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+
+// モード選択ボタンの処理
+document.getElementById('modeRanking').addEventListener('click', () => {
+    const ruleText = document.getElementById('ruleText');
+    ruleText.style.display = 'block';
+    ruleText.innerText = "ランキングモードは、1分間に何回バウンドさせることができるかを競うモードです。最高得点を目指して、集中してプレイしましょう！";
+});
+
+document.getElementById('modeChallenge').addEventListener('click', () => {
+    const ruleText = document.getElementById('ruleText');
+    ruleText.style.display = 'block';
+    ruleText.innerText = "チャレンジモードは、10秒以内に何回バウンドさせることができるかを競うモードです。限られた時間でどれだけバウンドできるか挑戦しましょう！";
+});
+
+document.getElementById('modeFree').addEventListener('click', () => {
+    const ruleText = document.getElementById('ruleText');
+    ruleText.style.display = 'block';
+    ruleText.innerText = "フリーモードは、時間制限なく自由にバウンドさせることができるモードです。のんびり遊んで、バウンドの練習ができます！";
+});
+
+// ルール説明ボタン
+document.getElementById('ruleButton').addEventListener('click', () => {
+    const ruleText = document.getElementById('ruleText');
+    ruleText.style.display = 'block';
+    ruleText.innerText = "モード選択画面でルール説明文を変更してください。";
+});
